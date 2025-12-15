@@ -1,59 +1,215 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Playground
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Interactive Laravel learning platform with live code execution, comprehensive tutorials, and modern UI.
 
-## About Laravel
+## 🚀 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Modern Landing Page**: Clean, SEO-optimized design with Laravel red theme
+- **100% Tutorial Coverage**: 9 packages, 19 tutorials, 43 interactive code examples
+- **Interactive Code Editor**: Monaco Editor integration with syntax highlighting
+- **Authentication**: Protected routes with Laravel Breeze
+- **Responsive Design**: Mobile-friendly with Tailwind CSS
+- **Organized Seeders**: Modular seeder structure for easy maintenance
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📦 Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 11, PHP 8.2+
+- **Frontend**: React 18, TypeScript, Inertia.js
+- **Styling**: Tailwind CSS v4
+- **Database**: MySQL 8.0
+- **Development**: Laravel Sail (Docker)
 
-## Learning Laravel
+## 🛠️ VPS Deployment
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Prerequisites
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Ubuntu 20.04+ VPS
+- Docker & Docker Compose installed
+- Git installed
+- Domain name (optional)
 
-## Laravel Sponsors
+### Step 1: Clone Repository
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+cd /var/www
+git clone https://github.com/rizqyyourin/laravel-playground.git
+cd laravel-playground
+```
 
-### Premium Partners
+### Step 2: Environment Setup
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+# Copy environment file
+cp .env.example .env
 
-## Contributing
+# Edit .env file
+nano .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Update these values in `.env`:
+```env
+APP_NAME="Laravel Playground"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=http://your-domain.com
 
-## Code of Conduct
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel_playground
+DB_USERNAME=sail
+DB_PASSWORD=password
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
+```
 
-## Security Vulnerabilities
+### Step 3: Install Dependencies & Start Sail
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# Install Composer dependencies (without Sail first)
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install --ignore-platform-reqs
 
-## License
+# Start Laravel Sail
+./vendor/bin/sail up -d
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Generate application key
+./vendor/bin/sail artisan key:generate
+
+# Install NPM dependencies
+./vendor/bin/sail npm install
+
+# Build frontend assets
+./vendor/bin/sail npm run build
+```
+
+### Step 4: Database Setup
+
+```bash
+# Run migrations
+./vendor/bin/sail artisan migrate
+
+# Seed database
+./vendor/bin/sail artisan db:seed
+```
+
+### Step 5: Storage & Permissions
+
+```bash
+# Create storage link
+./vendor/bin/sail artisan storage:link
+
+# Set permissions
+sudo chown -R $USER:$USER storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+```
+
+### Step 6: Configure Nginx (Optional)
+
+If using Nginx as reverse proxy:
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:8081;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+### Step 7: Access Application
+
+Visit: `http://your-server-ip:8081` or `http://your-domain.com`
+
+## 🔧 Local Development
+
+```bash
+# Clone repository
+git clone https://github.com/rizqyyourin/laravel-playground.git
+cd laravel-playground
+
+# Copy environment
+cp .env.example .env
+
+# Start Sail
+./vendor/bin/sail up -d
+
+# Install dependencies
+./vendor/bin/sail composer install
+./vendor/bin/sail npm install
+
+# Generate key
+./vendor/bin/sail artisan key:generate
+
+# Run migrations & seeders
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed
+
+# Start dev server
+./vendor/bin/sail npm run dev
+```
+
+Visit: `http://localhost:8081`
+
+## 📝 Database Seeding
+
+The project includes organized seeders:
+
+```bash
+# Seed all data
+./vendor/bin/sail artisan db:seed
+
+# Seed specific seeders
+./vendor/bin/sail artisan db:seed --class=CategorySeeder
+./vendor/bin/sail artisan db:seed --class=PackageSeeder
+./vendor/bin/sail artisan db:seed --class=TutorialSeeder
+./vendor/bin/sail artisan db:seed --class=CodeExampleSeeder
+```
+
+## 🎯 Package Coverage
+
+1. **Laravel Sanctum** - API Authentication
+2. **Eloquent ORM** - Database Relationships
+3. **API Resources** - JSON Transformations
+4. **Database Migrations** - Schema Management
+5. **Laravel Telescope** - Debugging & Monitoring
+6. **Pest PHP** - Testing Framework
+7. **Laravel Passport** - OAuth2 Server
+8. **Laravel Fortify** - Authentication Backend
+9. **Laravel Pail** - Log Monitoring
+
+## 🔐 Default Credentials
+
+After seeding, you can register a new account or use test credentials if created.
+
+## 📚 Documentation
+
+- Landing Page: `/`
+- Packages: `/packages` (requires login)
+- Tutorials: `/tutorials/{slug}` (requires login)
+- Dashboard: `/dashboard` (requires login)
+
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first.
+
+## 📄 License
+
+This project is open-sourced software licensed under the MIT license.
+
+## 👨‍💻 Author
+
+**Rizqy Yourin**
+- GitHub: [@rizqyyourin](https://github.com/rizqyyourin)
+- Email: rizqyyourin6@gmail.com
